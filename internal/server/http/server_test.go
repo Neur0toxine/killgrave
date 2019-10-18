@@ -24,9 +24,9 @@ func TestServer_Build(t *testing.T) {
 		server Server
 		err    error
 	}{
-		{"imposter directory not found", NewServer("failImposterPath", nil, http.Server{}), errors.New("hello")},
-		{"malformatted json", NewServer("test/testdata/malformatted_imposters", nil, http.Server{}), nil},
-		{"valid imposter", NewServer("test/testdata/imposters", mux.NewRouter(), http.Server{}), nil},
+		{"imposter directory not found", NewServer("failImposterPath", nil, http.Server{}, "", ""), errors.New("hello")},
+		{"malformatted json", NewServer("test/testdata/malformatted_imposters", nil, http.Server{}, "", ""), nil},
+		{"valid imposter", NewServer("test/testdata/imposters", mux.NewRouter(), http.Server{}, "", ""), nil},
 	}
 
 	for _, tt := range serverData {

@@ -15,6 +15,13 @@ type Config struct {
 	Port          int        `yaml:"port"`
 	Host          string     `yaml:"host"`
 	CORS          ConfigCORS `yaml:"cors"`
+	SSL           SSLConfig   `yaml:"ssl"`
+}
+
+// SSLConfig representation of section SSL of the yaml
+type SSLConfig struct {
+	Cert string `yaml:"cert"`
+	Key  string `yaml:"key"`
 }
 
 // ConfigCORS representation of section CORS of the yaml
@@ -65,6 +72,14 @@ func WithConfigFile(cfgPath string) ConfigOpt {
 		}
 
 		cfg.ImpostersPath = path.Join(path.Dir(cfgPath), cfg.ImpostersPath)
+
+		if cfg.SSL.Cert != "" {
+			cfg.SSL.Cert = path.Clean(path.Join(path.Dir(cfgPath), cfg.SSL.Cert))
+		}
+
+		if cfg.SSL.Key != "" {
+			cfg.SSL.Key = path.Clean(path.Join(path.Dir(cfgPath), cfg.SSL.Key))
+		}
 
 		return nil
 	}

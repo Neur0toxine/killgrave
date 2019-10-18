@@ -10,10 +10,9 @@ import (
 	"os"
 	"path/filepath"
 
+	killgrave "github.com/friendsofgo/killgrave/internal"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-
-	killgrave "github.com/friendsofgo/killgrave/internal"
 )
 
 var (
@@ -28,17 +27,28 @@ type ServerOpt func(s *Server)
 // Server definition of mock server
 type Server struct {
 	impostersPath string
+	TLSEnabled    bool
+	SSLCert       string
+	SSLKey        string
 	router        *mux.Router
 	httpServer    http.Server
 }
 
 // NewServer initialize the mock server
-func NewServer(p string, r *mux.Router, httpServer http.Server) Server {
-	return Server{
+func NewServer(p string, r *mux.Router, httpServer http.Server, cert, key string) Server {
+	s := Server{
 		impostersPath: p,
 		router:        r,
 		httpServer:    httpServer,
 	}
+
+	if cert != "" && key != "" {
+		s.SSLCert = cert
+		s.SSLKey = key
+		s.TLSEnabled = true
+	}
+
+	return s
 }
 
 // PrepareAccessControl Return options to initialize the mock server with default access control
@@ -106,8 +116,13 @@ func (s *Server) Build() error {
 // application will be crashed
 func (s *Server) Run() {
 	go func() {
+		var err error
 		log.Printf("The fake server is on tap now: %s\n", s.httpServer.Addr)
-		err := s.httpServer.ListenAndServe()
+		if s.TLSEnabled {
+			err = s.httpServer.ListenAndServeTLS(s.SSLCert, s.SSLKey)
+		} else {
+			err = s.httpServer.ListenAndServe()
+		}
 		if err != http.ErrServerClosed {
 			log.Fatal(err)
 		}

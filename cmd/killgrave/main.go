@@ -108,6 +108,8 @@ func runServer(host string, port int, cfg killgrave.Config) server.Server {
 		cfg.ImpostersPath,
 		router,
 		httpServer,
+		cfg.SSL.Cert,
+		cfg.SSL.Key,
 	)
 	if err := s.Build(); err != nil {
 		log.Fatal(err)
